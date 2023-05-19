@@ -18,25 +18,111 @@
             padding: 16px;
             font-size: 24px;
             margin-bottom: 16px;
+            cursor: pointer; /* Makes the cursor indicate it's a clickable area */
+        }
+        /* This will hide the actual file input, but it will still be clickable */
+        .upload-area input[type="file"] {
+            display: none;
+        }
+        .message {
+            padding: 10px;
+            margin: 5px;
+            background-color: #f3f3f3
+        }
+        nav a {
+            color: #d64161;
+            font-size: 3em;
+            margin-left: 50px;
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
 <div class="container py-5">
-    <h1 class="text-center mb-5">Upload a PDF file</h1>
+    <h1 class="text-center mb-5">OCR para PDF</h1>
     <form action="/" method="post" enctype="multipart/form-data">
         <div class="upload-area" id="uploadfile">
-            <h3>Drag and Drop file here</h3>
-            Or<br>
+            <!-- <h3>Arraste e solte um arquivo aqui </h3>
+             ou <br> -->
+            <h4> Clique aqui para selecionar um</h4>
             <input type="file" name="file">
         </div>
-        <button type="submit" class="btn btn-primary btn-block">Upload</button>
+        <button type="submit" class="btn btn-primary btn-block">Enviar e processar</button>
     </form>
+    {% block content %}
+    {% for message in messages %}
+        <div class='message'>
+            <h3>{{ message['title'] }}</h3>
+            <p>{{ message['content'] }}</p>
+        </div>
+    {% endfor %}
+    {% endblock %}
+    <div class="mt-5">
+        <h2 class="mb-4">Relação dos últimos arquivos processados:</h2>
+        <ul id="processed-files">
+
+        </ul>
+    </div>
 </div>
+<<<<<<< HEAD
 <div id="drop_zone">Drop a PDF here</div>
 <output id="list"></output>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+=======
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+>>>>>>> dca8fde (add some ajax functions.)
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script>
+    // This will simulate a click on the file input when the upload area is clicked
+    document.getElementById('uploadfile').addEventListener('click', function() {
+        this.querySelector('input').click();
+    });
+</script>
+<script>
+    $(function() {
+        $('#uploadfile input[type="file"]').on('change', function() {
+            var file = this.files[0];
+            var formData = new FormData();
+            formData.append('file', file);
+
+            $.ajax({
+                url: '/',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(data) {
+                    alert('Arquivo recebido e o processamento começou.');
+                    // aqui você pode adicionar o arquivo à lista de arquivos processados, se desejar
+                },
+                error: function() {
+                    alert('Ocorreu um erro ao enviar o arquivo.');
+                }
+            });
+        });
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        function loadRecentFiles() {
+            $.getJSON('/recent_files', function(data) {
+                // Limpar a lista de arquivos
+                $('#processed-files').empty();
+    
+                // Adicionar cada arquivo à lista
+                $.each(data, function(key, value) {
+                    $('#processed-files').append('<li>' + value + '</li>');
+                });
+            });
+        }
+    
+        // Carregar os arquivos recentes ao carregar a página
+        loadRecentFiles();
+    
+        // Atualizar a lista de arquivos a cada 30 segundos
+        setInterval(loadRecentFiles, 30000);
+    });
+</script>
+
 </body>
 </html>
-
